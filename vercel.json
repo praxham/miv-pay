@@ -2,7 +2,21 @@
   "buildCommand": "bun run build",
   "outputDirectory": "dist",
   "rewrites": [
-    { "source": "/docs", "destination": "/api/docs" },
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
+    {
+      "source": "/docs",
+      "destination": "/api/docs"
+    },
+    {
+      "source": "/pay",
+      "destination": "/api/pay"
+    },
+    {
+      "source": "/pay/",
+      "destination": "/api/pay"
+    },
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
   ]
 }
