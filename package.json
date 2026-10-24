@@ -1,0 +1,32 @@
+{
+  "name": "miv-pay",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun --hot src/index.tsx",
+    "start": "NODE_ENV=production bun src/index.tsx",
+    "build": "bun run build.ts"
+  },
+  "dependencies": {
+    "@vercel/og": "^1.0.3",
+    "bun-plugin-tailwind": "^0.0.15",
+    "crypto-js": "^4.2.0",
+    "dotenv": "^18.0.9",
+    "qrcode.react": "^4.2.0",
+    "react": "^19",
+    "react-dom": "^19",
+    "react-helmet-async": "^3.0.0",
+    "react-router-dom": "^7.18.4",
+    "react-toastify": "^11.1.0",
+    "tailwindcss": "^4.1.11",
+    "zod": "^4.6.7",
+    "zustand": "^5.0.16"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/crypto-js": "^4.2.2",
+    "@types/react": "^19",
+    "@types/react-dom": "^19"
+  }
+}
