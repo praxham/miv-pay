@@ -1,7 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
 import { createSignature } from "./functions";
 import { generateLinkSchema, verifyLinkSchema } from "./validation-schema";
-import { ImageResponse } from "@vercel/og";
 
 const escapeXml = (s: string): string =>
   s
@@ -90,63 +89,6 @@ export async function verifyLinkHandler(req: Request): Promise<Response> {
       { success: false, message: "Something Went Wrong!" },
       { status: 500 },
     );
-  }
-}
-
-type OgNode = {
-  type: string;
-  props: { style: Record<string, unknown>; children: unknown };
-};
-
-const ogEl = (style: Record<string, unknown>, children: unknown): OgNode => ({
-  type: "div",
-  props: { style: { display: "flex", ...style }, children },
-});
-
-export function ogHandler(req: Request): Response {
-  try {
-    const { searchParams } = new URL(req.url);
-    const am = searchParams.get("am") || "0";
-    const pn = searchParams.get("pn");
-    const pa = searchParams.get("pa") || "";
-    const tn = searchParams.get("tn");
-
-    const title = `Paying Rs. ${am} ${pn ? `to ${pn}` : `to ${pa}`}`;
-    const subtitle = tn ? `for "${tn}"` : " ";
-
-    const tree = ogEl(
-      {
-        width: "100%",
-        height: "100%",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        background: "#ffffff",
-        padding: "80px",
-      },
-      [
-        ogEl({ flexDirection: "column" }, [
-          ogEl({ fontSize: 56, fontWeight: 800, color: "#111827" }, title),
-          ogEl({ fontSize: 36, color: "#4B5563", marginTop: 24 }, subtitle),
-        ]),
-        ogEl(
-          {
-            border: "2px solid #E5E7EB",
-            background: "#F9FAFB",
-            borderRadius: 16,
-            padding: "32px 40px",
-            fontSize: 28,
-            fontWeight: 700,
-            color: "#1F2937",
-          },
-          "Scan with any UPI app to pay securely",
-        ),
-      ],
-    );
-
-    return new ImageResponse(tree as any, { width: 1200, height: 630 });
-  } catch (error) {
-    console.error(error);
-    return new Response("Failed to generate OG image", { status: 500 });
   }
 }
 
