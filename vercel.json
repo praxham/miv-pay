@@ -1,6 +1,9 @@
 {
+  "buildCommand": "bun run build",
   "outputDirectory": "dist",
+  "bunVersion": "1.4.x",
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/docs", "destination": "/api/docs" },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }
