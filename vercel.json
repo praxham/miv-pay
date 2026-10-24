@@ -3,18 +3,7 @@
   "outputDirectory": "dist",
   "bunVersion": "1.4.x",
   "rewrites": [
-    {
-      "source": "/docs",
-      "destination": "/api/docs"
-    },
-    {
-      "source": "/pay",
-      "destination": "/api/pay"
-    },
-    {
-      "source": "/pay/",
-      "destination": "/api/pay"
-    },
+    { "source": "/docs", "destination": "/api/docs" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }
