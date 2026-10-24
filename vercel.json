@@ -1,6 +1,7 @@
 {
   "buildCommand": "bun run build",
   "outputDirectory": "dist",
+  "bunVersion": "1.x",
   "rewrites": [
     {
       "source": "/docs",
