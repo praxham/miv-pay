@@ -8,14 +8,6 @@
       "destination": "/api/docs"
     },
     {
-      "source": "/pay",
-      "destination": "/api/pay"
-    },
-    {
-      "source": "/pay/",
-      "destination": "/api/pay"
-    },
-    {
       "source": "/((?!api/).*)",
       "destination": "/index.html"
     }
