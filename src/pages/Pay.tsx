@@ -14,7 +14,7 @@ const paymentAppIcons = [gpayIcon, paytmIcon, phonepayIcon, upiIcon];
 const Pay = () => {
   const [searchParams] = useSearchParams();
   const { pn, pa, am, tn, ct, ci, ra, sig } = Object.fromEntries(searchParams);
-  const [isLinkValid, setIsLinkValid] = useState<boolean | null>();
+  const [isLinkValid, setIsLinkValid] = useState<boolean | null>(null);
   const [customerPaymentInfo, setCustomerPaymentInfo] = useState({
     upiId: ra ? ra : "",
     utr: "",

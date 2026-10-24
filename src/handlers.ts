@@ -1,6 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import { createSignature } from "./functions";
 import { generateLinkSchema, verifyLinkSchema } from "./validation-schema";
+import { ImageResponse } from "@vercel/og";
 
 const escapeXml = (s: string): string =>
   s
@@ -92,36 +93,57 @@ export async function verifyLinkHandler(req: Request): Promise<Response> {
   }
 }
 
+type OgNode = {
+  type: string;
+  props: { style: Record<string, unknown>; children: unknown };
+};
+
+const ogEl = (style: Record<string, unknown>, children: unknown): OgNode => ({
+  type: "div",
+  props: { style: { display: "flex", ...style }, children },
+});
+
 export function ogHandler(req: Request): Response {
   try {
-    const url = new URL(req.url);
-    const am = url.searchParams.get("am") || "0";
-    const pn = url.searchParams.get("pn");
-    const pa = url.searchParams.get("pa") || "";
-    const tn = url.searchParams.get("tn");
+    const { searchParams } = new URL(req.url);
+    const am = searchParams.get("am") || "0";
+    const pn = searchParams.get("pn");
+    const pa = searchParams.get("pa") || "";
+    const tn = searchParams.get("tn");
 
-    const title = escapeXml(`Paying ₹${am} ${pn ? `to ${pn}` : `to ${pa}`}`);
-    const subtitle = tn ? escapeXml(`for "${tn}"`) : "";
+    const title = `Paying Rs. ${am} ${pn ? `to ${pn}` : `to ${pa}`}`;
+    const subtitle = tn ? `for "${tn}"` : " ";
 
-    const svg = `
-<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
-  <rect width="1200" height="630" fill="#ffffff"/>
-  <g transform="translate(80, 100)">
-    <text x="0" y="80" font-family="system-ui, sans-serif" font-size="56" font-weight="800" fill="#111827">${title}</text>
-    <text x="0" y="150" font-family="system-ui, sans-serif" font-size="36" font-weight="500" fill="#4B5563">${subtitle}</text>
-  </g>
-  <g transform="translate(80, 450)">
-    <rect width="1040" height="100" rx="16" fill="#F9FAFB" stroke="#E5E7EB" stroke-width="2"/>
-    <text x="40" y="60" font-family="system-ui, sans-serif" font-size="28" font-weight="700" fill="#1F2937">Scan with any UPI app to pay securely</text>
-  </g>
-</svg>`;
-
-    return new Response(svg, {
-      headers: {
-        "Content-Type": "image/svg+xml",
-        "Cache-Control": "public, max-age=3600",
+    const tree = ogEl(
+      {
+        width: "100%",
+        height: "100%",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        background: "#ffffff",
+        padding: "80px",
       },
-    });
+      [
+        ogEl({ flexDirection: "column" }, [
+          ogEl({ fontSize: 56, fontWeight: 800, color: "#111827" }, title),
+          ogEl({ fontSize: 36, color: "#4B5563", marginTop: 24 }, subtitle),
+        ]),
+        ogEl(
+          {
+            border: "2px solid #E5E7EB",
+            background: "#F9FAFB",
+            borderRadius: 16,
+            padding: "32px 40px",
+            fontSize: 28,
+            fontWeight: 700,
+            color: "#1F2937",
+          },
+          "Scan with any UPI app to pay securely",
+        ),
+      ],
+    );
+
+    return new ImageResponse(tree as any, { width: 1200, height: 630 });
   } catch (error) {
     console.error(error);
     return new Response("Failed to generate OG image", { status: 500 });
