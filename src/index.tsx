@@ -15,7 +15,7 @@ const server = serve({
 
     "/api/generate-link": { POST: (req) => generateLinkHandler(req) },
     "/api/verify-link": { POST: (req) => verifyLinkHandler(req) },
-    "/api/og": { GET: (req) => ogHandler(req) },
+    "/api/og": { GET: async (req) => (await import("../api/og")).GET(req) },
     "/api/docs-json": { GET: () => docsJsonHandler() },
     "/docs": { GET: () => docsPageHandler() },
   },
