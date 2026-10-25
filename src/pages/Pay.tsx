@@ -1,4 +1,3 @@
-import { useSearchParams } from "react-router";
 import { useEffect, useRef, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import gpayIcon from "../assets/gpay.png";
@@ -6,14 +5,14 @@ import paytmIcon from "../assets/paytm.png";
 import phonepayIcon from "../assets/phonepay.png";
 import upiIcon from "../assets/upi.png";
 import scanPaymentQrIcon from "../assets/scan-payment-qr.svg";
-import { Helmet } from "react-helmet-async";
 import { UPI_REGEX } from "@/validation-schema";
 
 const paymentAppIcons = [gpayIcon, paytmIcon, phonepayIcon, upiIcon];
 
 const Pay = () => {
-  const [searchParams] = useSearchParams();
-  const { pn, pa, am, tn, ct, ci, ra, sig } = Object.fromEntries(searchParams);
+  const { pn, pa, am, tn, ct, ci, ra, sig } = Object.fromEntries(
+    new URLSearchParams(window.location.search),
+  );
   const [isLinkValid, setIsLinkValid] = useState<boolean | null>(null);
   const [customerPaymentInfo, setCustomerPaymentInfo] = useState({
     upiId: ra ? ra : "",
@@ -47,9 +46,6 @@ const Pay = () => {
   if (isLinkValid === null) {
     return (
       <div>
-        <Helmet>
-          <title>Verifying secure link...</title>
-        </Helmet>
         <h1>Verifying secure link...</h1>
       </div>
     );
@@ -115,17 +111,6 @@ const Pay = () => {
   if (isLinkValid === true) {
     return (
       <div className="flex flex-col gap-4">
-        <Helmet>
-          <title>{pageTitle}</title>
-          <meta property="og:title" content={pageTitle} />
-          <meta
-            property="og:description"
-            content="Scan with any UPI app to pay securely."
-          />
-          <meta property="og:image" content={ogImageUrl} />
-          <meta name="twitter:card" content="summary_large_image" />
-          <meta name="twitter:image" content={ogImageUrl} />
-        </Helmet>
         <h1 className="font-extrabold text-4xl break-all">
           Paying ₹{am} {pn ? `to ${pn}` : `to ${pa}`} {tn ? `for "${tn}"` : ""}
         </h1>
@@ -219,9 +204,6 @@ const Pay = () => {
 
   return (
     <div>
-      <Helmet>
-        <title>Invalid or Tampered Link</title>
-      </Helmet>
       <h1>Invalid or Tampered Link</h1>
     </div>
   );

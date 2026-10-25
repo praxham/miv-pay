@@ -4,16 +4,16 @@
  *
  * It is included in `src/index.html`.
  */
-
+import "./index.css";
 import { createRoot } from "react-dom/client";
-import { App } from "./App";
 import { Bounce, ToastContainer } from "react-toastify";
+import CreatePaymentLink from "./pages/CreatePaymentLink";
 
 function start() {
   const root = createRoot(document.getElementById("root")!);
   root.render(
     <div className="mx-auto my-4 p-4 lg:p-0">
-      <App />
+      <CreatePaymentLink />
       <ToastContainer
         position="top-center"
         autoClose={5000}

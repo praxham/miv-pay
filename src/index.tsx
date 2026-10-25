@@ -1,10 +1,11 @@
 import { serve } from "bun";
 import index from "./index.html";
+import pay from "./pay.html";
+
 import {
   docsJsonHandler,
   docsPageHandler,
   generateLinkHandler,
-  ogHandler,
   verifyLinkHandler,
 } from "./handlers";
 
@@ -12,6 +13,8 @@ const server = serve({
   routes: {
     // Serve index.html for all unmatched routes.
     "/*": index,
+    "/pay": pay,
+    "/pay/": pay,
 
     "/api/generate-link": { POST: (req) => generateLinkHandler(req) },
     "/api/verify-link": { POST: (req) => verifyLinkHandler(req) },
