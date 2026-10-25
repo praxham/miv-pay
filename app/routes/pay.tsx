@@ -9,7 +9,11 @@ import { UPI_REGEX } from "~/validation-schema";
 import { useSearchParams } from "react-router";
 import type { Route } from "../+types/root";
 
-export function meta({ location, data }: Route.MetaArgs) {
+export function meta({ location }: Route.MetaArgs) {
+  const origin =
+    typeof window !== "undefined"
+      ? window.location.origin
+      : "https://miv-pay.vercel.app";
   const searchParams = new URLSearchParams(location.search);
   const am = searchParams.get("am");
   const pn = searchParams.get("pn");
@@ -21,19 +25,23 @@ export function meta({ location, data }: Route.MetaArgs) {
   const title = am ? `Paying ₹${am} ${recipient} ${note}`.trim() : "MIV PAY";
   const description = `Secure UPI payment page ${recipient} ${note}`.trim();
 
-  const ogImageUrl = `${data?.origin ?? ""}/api/og-image?${searchParams.toString()}`;
+  const ogImageUrl = `${origin}/api/og-image?${searchParams.toString()}`;
 
   return [
     { title },
     { name: "description", content: description },
     { property: "og:title", content: title },
     { property: "og:description", content: description },
-    { property: "og:image", content: ogImageUrl },
     { property: "og:type", content: "website" },
+
+    { property: "og:image", content: ogImageUrl },
     { property: "og:image:type", content: "image/png" },
     { property: "og:image:width", content: "1200" },
     { property: "og:image:height", content: "630" },
+
     { name: "twitter:card", content: "summary_large_image" },
+    { name: "twitter:title", content: title },
+    { name: "twitter:description", content: description },
     { name: "twitter:image", content: ogImageUrl },
   ];
 }
