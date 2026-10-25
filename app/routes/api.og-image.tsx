@@ -1,8 +1,16 @@
 import satori from "satori";
 import { Resvg } from "@resvg/resvg-js";
-import { readFile } from "node:fs/promises";
 import QRCode from "qrcode";
 import type { Route } from "./+types/api.og.image";
+
+import poppins400 from "../assets/fonts/poppins-400.woff?inline";
+import poppins700 from "../assets/fonts/poppins-700.woff?inline";
+
+const dataUrlToBuffer = (dataUrl: string) =>
+  Buffer.from(dataUrl.split(",")[1], "base64");
+
+const regular = dataUrlToBuffer(poppins400);
+const bold = dataUrlToBuffer(poppins700);
 
 function generateQrSvgPath(text: string, size: number) {
   const qr = QRCode.create(text, { errorCorrectionLevel: "H" });
@@ -33,15 +41,6 @@ export async function loader({ request }: Route.LoaderArgs): Promise<Response> {
     const tnParam =
       typeof tn === "string" && tn ? `&tn=${encodeURIComponent(tn)}` : "";
     const UPIPaymentURL = `upi://pay?pa=${pa}${pnParam}&am=${am}&cu=INR${tnParam}`;
-
-    const [regular, bold] = await Promise.all([
-      readFile(
-        "node_modules/@fontsource/poppins/files/poppins-latin-400-normal.woff",
-      ),
-      readFile(
-        "node_modules/@fontsource/poppins/files/poppins-latin-700-normal.woff",
-      ),
-    ]);
 
     const qrSize = 200;
     const { path, moduleCount, cellSize } = generateQrSvgPath(
