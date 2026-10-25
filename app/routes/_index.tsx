@@ -1,7 +1,15 @@
-import { useUserStore } from "@/store";
-import { UPI_REGEX } from "@/validation-schema";
+import type { Route } from "./+types/home";
+import { useUserStore } from "~/store";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { UPI_REGEX } from "~/validation-schema";
+
+export function meta({}: Route.MetaArgs) {
+  return [
+    { title: "MIV PAY" },
+    { name: "description", content: "Secure UPI Payment Link" },
+  ];
+}
 
 const CreatePaymentLink = () => {
   const user = useUserStore((state) => state);
@@ -230,5 +238,4 @@ const CreatePaymentLink = () => {
   );
 };
 
-// http://localhost:3000/pay/?&pa=prathampatankar1234@okicici&am=10&ct=whatsapp&ci=9076006477&sig=aa3e378d
 export default CreatePaymentLink;

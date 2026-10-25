@@ -2,8 +2,7 @@ import CryptoJS from "crypto-js";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-const ENCRYPTION_KEY =
-  "1ed1d4863ca98697c8956ec6b8fa5845cef1d32d2253a5c4fe77ae556f40aa4f";
+const ENCRYPTION_KEY = process.env.LS_ENCRYPTION_KEY;
 
 const encryptedStorage = {
   getItem: (name: string) => {

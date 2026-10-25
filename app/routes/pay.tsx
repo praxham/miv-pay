@@ -5,13 +5,40 @@ import paytmIcon from "../assets/paytm.png";
 import phonepayIcon from "../assets/phonepay.png";
 import upiIcon from "../assets/upi.png";
 import scanPaymentQrIcon from "../assets/scan-payment-qr.svg";
-import { UPI_REGEX } from "@/validation-schema";
+import { UPI_REGEX } from "~/validation-schema";
+import { useSearchParams } from "react-router";
+import type { Route } from "../+types/root";
+
+export function meta({ location, data }: Route.MetaArgs) {
+  const searchParams = new URLSearchParams(location.search);
+  const am = searchParams.get("am");
+  const pn = searchParams.get("pn");
+  const pa = searchParams.get("pa");
+  const tn = searchParams.get("tn");
+
+  const recipient = pn ? `to ${pn}` : pa ? `to ${pa}` : "";
+  const note = tn ? `for "${tn}"` : "";
+  const title = am ? `Paying ₹${am} ${recipient} ${note}`.trim() : "MIV PAY";
+  const description = `Secure UPI payment page ${recipient} ${note}`.trim();
+
+  const ogImageUrl = `${data?.origin ?? ""}/api/og/image?${searchParams.toString()}`;
+
+  return [
+    { title },
+    { name: "description", content: description },
+    { property: "og:title", content: title },
+    { property: "og:description", content: description },
+    { property: "og:image", content: ogImageUrl },
+    { property: "og:type", content: "website" },
+  ];
+}
 
 const paymentAppIcons = [gpayIcon, paytmIcon, phonepayIcon, upiIcon];
 
 const Pay = () => {
+  const [searchParams] = useSearchParams();
   const { pn, pa, am, tn, ct, ci, ra, sig } = Object.fromEntries(
-    new URLSearchParams(window.location.search),
+    searchParams.entries(),
   );
   const [isLinkValid, setIsLinkValid] = useState<boolean | null>(null);
   const [customerPaymentInfo, setCustomerPaymentInfo] = useState({
@@ -24,7 +51,7 @@ const Pay = () => {
     setCustomerPaymentInfo((prev) => ({ ...prev, [key]: value }));
   };
 
-  const UPIPaymentURL = `upi://pay?pa=${pa}${pn ? `&pn=${encodeURIComponent(pn)}` : ""}&am=${am}&cu=INR${tn ? `&tn=${encodeURIComponent(tn)}` : ""}`;
+  const UPIPaymentURL = `upi://pay?pa=${pa}${typeof pn === "string" ? `&pn=${encodeURIComponent(pn)}` : ""}&am=${am}&cu=INR${typeof tn === "string" ? `&tn=${encodeURIComponent(tn)}` : ""}`;
 
   useEffect(() => {
     const checkLinkValidity = async () => {

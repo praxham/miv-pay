@@ -30,7 +30,7 @@ body {
   background-color: white;
   font-family: var(--font-sans);
   max-width: var(--website-horizontal-size);
-  margin: 16 auto;
+  margin: 16px auto;
 }
 
 .styled-button {
