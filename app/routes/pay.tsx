@@ -21,7 +21,7 @@ export function meta({ location, data }: Route.MetaArgs) {
   const title = am ? `Paying ₹${am} ${recipient} ${note}`.trim() : "MIV PAY";
   const description = `Secure UPI payment page ${recipient} ${note}`.trim();
 
-  const ogImageUrl = `${data?.origin ?? ""}/api/og/image?${searchParams.toString()}`;
+  const ogImageUrl = `${data?.origin ?? ""}/api/og-image?${searchParams.toString()}`;
 
   return [
     { title },
@@ -30,6 +30,11 @@ export function meta({ location, data }: Route.MetaArgs) {
     { property: "og:description", content: description },
     { property: "og:image", content: ogImageUrl },
     { property: "og:type", content: "website" },
+    { property: "og:image:type", content: "image/png" },
+    { property: "og:image:width", content: "1200" },
+    { property: "og:image:height", content: "630" },
+    { name: "twitter:card", content: "summary_large_image" },
+    { name: "twitter:image", content: ogImageUrl },
   ];
 }
 
