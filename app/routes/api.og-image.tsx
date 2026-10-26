@@ -2,7 +2,6 @@ import satori from "satori";
 import { Resvg } from "@resvg/resvg-js";
 import QRCode from "qrcode";
 import type { Route } from "./+types/api.og.image";
-
 import poppins400 from "../assets/fonts/poppins-400.woff?inline";
 import poppins700 from "../assets/fonts/poppins-700.woff?inline";
 
@@ -42,11 +41,21 @@ export async function loader({ request }: Route.LoaderArgs): Promise<Response> {
       typeof tn === "string" && tn ? `&tn=${encodeURIComponent(tn)}` : "";
     const UPIPaymentURL = `upi://pay?pa=${pa}${pnParam}&am=${am}&cu=INR${tnParam}`;
 
-    const qrSize = 200;
-    const { path, moduleCount, cellSize } = generateQrSvgPath(
-      UPIPaymentURL,
-      qrSize,
-    );
+    const qrData = QRCode.create(UPIPaymentURL, { errorCorrectionLevel: "H" });
+    const moduleCount = qrData.modules.size;
+    const qrSize = 800;
+    const cellSize = qrSize / moduleCount;
+
+    let path = "";
+    for (let r = 0; r < moduleCount; r++) {
+      for (let c = 0; c < moduleCount; c++) {
+        if (qrData.modules.get(r, c)) {
+          path += `M${c * cellSize},${r * cellSize}h${cellSize}v${cellSize}h-${cellSize}z `;
+        }
+      }
+    }
+
+    const displaySize = 300;
 
     const svg = await satori(
       <div
@@ -69,6 +78,7 @@ export async function loader({ request }: Route.LoaderArgs): Promise<Response> {
               fontWeight: 700,
               wordBreak: "break-all",
               color: "#111827",
+              lineClamp: 2,
             }}
           >
             {`Paying Rs. ${am} ${pn ? `to ${pn}` : `to ${pa}`} ${tn ? `for "${tn}"` : ""}`}
@@ -80,11 +90,11 @@ export async function loader({ request }: Route.LoaderArgs): Promise<Response> {
             display: "flex",
             flexDirection: "row",
             alignItems: "center",
-            gap: "32px",
+            gap: "16px",
             border: "2px solid #E5E7EB",
             background: "#F9FAFB",
             borderRadius: "16px",
-            padding: "32px",
+            padding: "16px",
           }}
         >
           <div
@@ -96,10 +106,12 @@ export async function loader({ request }: Route.LoaderArgs): Promise<Response> {
             }}
           >
             <svg
-              width={qrSize}
-              height={qrSize}
-              viewBox={`0 0 ${moduleCount * cellSize} ${moduleCount * cellSize}`}
-              style={{ display: "flex" }}
+              viewBox={`0 0 ${qrSize} ${qrSize}`}
+              style={{
+                display: "flex",
+                width: displaySize,
+                height: displaySize,
+              }}
             >
               <path d={path} fill="black" />
             </svg>
@@ -109,7 +121,7 @@ export async function loader({ request }: Route.LoaderArgs): Promise<Response> {
               Scan with any UPI app to pay
             </div>
             <div style={{ fontSize: 22, fontWeight: 400, color: "#6B7280" }}>
-              Secure UPI Payment Gateway
+              Secure Payment Link
             </div>
           </div>
         </div>
@@ -129,7 +141,8 @@ export async function loader({ request }: Route.LoaderArgs): Promise<Response> {
     return new Response(new Uint8Array(png), {
       headers: {
         "Content-Type": "image/png",
-        "Cache-Control": "public, max-age=31536000, immutable",
+        // "Cache-Control": "public, max-age=31536000, immutable",
+        "Cache-Control": "no-store, no-cache, must-revalidate",
       },
     });
   } catch (error) {
