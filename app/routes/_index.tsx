@@ -231,7 +231,10 @@ const CreatePaymentLink = () => {
       <button type="submit" className="styled-button mt-4">
         Create & Share Payment Link
       </button>
-      <a href="/docs" className="text-[0.87rem] text-center">
+      <a
+        href="https://github.com/praxham/miv-pay/blob/main/README.md"
+        className="text-[0.87rem] text-center"
+      >
         API Docs
       </a>
     </form>
