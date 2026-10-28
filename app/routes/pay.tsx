@@ -5,9 +5,11 @@ import paytmIcon from "../assets/paytm.png";
 import phonepayIcon from "../assets/phonepay.png";
 import upiIcon from "../assets/upi.png";
 import scanPaymentQrIcon from "../assets/scan-payment-qr.svg";
+import rupeeScanner from "../assets/rupee-scanner.svg";
 import { UPI_REGEX } from "~/validation-schema";
 import { useSearchParams } from "react-router";
 import type { Route } from "../+types/root";
+import { readableAmount } from "~/functions";
 
 export function meta({ location }: Route.MetaArgs) {
   const origin =
@@ -16,13 +18,16 @@ export function meta({ location }: Route.MetaArgs) {
       : "https://miv-pay.vercel.app";
   const searchParams = new URLSearchParams(location.search);
   const am = searchParams.get("am");
+  const readableAmountValue = am && readableAmount(am);
   const pn = searchParams.get("pn");
   const pa = searchParams.get("pa");
   const tn = searchParams.get("tn");
 
   const recipient = pn ? `to ${pn}` : pa ? `to ${pa}` : "";
   const note = tn ? `for "${tn}"` : "";
-  const title = am ? `Paying ₹${am} ${recipient} ${note}`.trim() : "MIV PAY";
+  const title = am
+    ? `Paying ₹${readableAmountValue} ${recipient} ${note}`.trim()
+    : "MIV PAY";
   const description = `Secure UPI payment page ${recipient} ${note}`.trim();
 
   const ogImageUrl = `${origin}/api/og-image?${searchParams.toString()}`;
@@ -86,7 +91,9 @@ const Pay = () => {
   if (isLinkValid === null) {
     return (
       <div>
-        <h1>Verifying secure link...</h1>
+        <h1 className="font-semibold text-(--clr-grey-three) w-full text-center">
+          Verifying secure link...
+        </h1>
       </div>
     );
   }
@@ -145,17 +152,63 @@ const Pay = () => {
     }
   };
 
-  const pageTitle = `Paying ₹${am} ${pn ? `to ${pn}` : `to ${pa}`} ${tn ? `for "${tn}"` : ""}`;
-  const ogImageUrl = `${window.location.origin}/api/og${window.location.search}`;
-
   if (isLinkValid === true) {
     return (
-      <div className="flex flex-col gap-4">
-        <h1 className="font-extrabold text-4xl break-all">
-          Paying ₹{am} {pn ? `to ${pn}` : `to ${pa}`} {tn ? `for "${tn}"` : ""}
-        </h1>
-        <div className="grid sm:grid-cols-[auto_1fr] gap-4 p-4 border-(--clr-border-grey-one) border rounded-(--corner-radius)">
-          <div ref={upiQRRef} className="flex justify-center">
+      <div className="flex flex-col gap-4 bg-[#F7F8FB] p-4 rounded-(--corner-radius)">
+        <div className="flex flex-row gap-4 justify-between items-center">
+          <div className="px-4 py-2 bg-black text-white w-fit rounded-(--corner-radius) font-extrabold">
+            MIV-PAY
+          </div>
+          <span className="text-(--clr-grey-two) font-medium text-[0.87rem] flex flex-row items-center gap-1">
+            <svg
+              width="14px"
+              height="14px"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+              <g
+                id="SVGRepo_tracerCarrier"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              ></g>
+              <g id="SVGRepo_iconCarrier">
+                {" "}
+                <path
+                  d="M7 10.0288C7.47142 10 8.05259 10 8.8 10H15.2C15.9474 10 16.5286 10 17 10.0288M7 10.0288C6.41168 10.0647 5.99429 10.1455 5.63803 10.327C5.07354 10.6146 4.6146 11.0735 4.32698 11.638C4 12.2798 4 13.1198 4 14.8V16.2C4 17.8802 4 18.7202 4.32698 19.362C4.6146 19.9265 5.07354 20.3854 5.63803 20.673C6.27976 21 7.11984 21 8.8 21H15.2C16.8802 21 17.7202 21 18.362 20.673C18.9265 20.3854 19.3854 19.9265 19.673 19.362C20 18.7202 20 17.8802 20 16.2V14.8C20 13.1198 20 12.2798 19.673 11.638C19.3854 11.0735 18.9265 10.6146 18.362 10.327C18.0057 10.1455 17.5883 10.0647 17 10.0288M7 10.0288V8C7 5.23858 9.23858 3 12 3C14.7614 3 17 5.23858 17 8V10.0288"
+                  stroke="var(--clr-grey-two)"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></path>{" "}
+              </g>
+            </svg>{" "}
+            <span>Secure Link</span>
+          </span>
+        </div>
+        <div className="flex flex-col gap-2 font-semibold">
+          <span className="text-(--clr-grey-two)">Paying</span>
+          <h1 className="font-extrabold text-6xl underline">
+            ₹{readableAmount(am)}
+          </h1>
+          <span className="inline">
+            {pn && <span>to {pn}</span>}{" "}
+            {tn && (
+              <span className="text-(--clr-grey-two) font-normal">
+                for "{tn}"
+              </span>
+            )}
+          </span>
+          <span className="text-(--clr-grey-two) font-medium text-[0.87rem]">
+            {pa}
+          </span>
+        </div>
+        <div className="bg-white grid sm:grid-cols-[auto_1fr] md:grid-cols-[1fr_auto] gap-4 p-4 border-(--clr-border-grey-one) border border-dashed rounded-(--corner-radius)">
+          <div
+            ref={upiQRRef}
+            className="w-fit mx-auto flex justify-center p-4 border border-(--clr-border-grey-one) rounded-(--corner-radius)"
+          >
             <QRCodeCanvas
               value={UPIPaymentURL}
               level="H"
@@ -167,13 +220,13 @@ const Pay = () => {
               }}
             />
           </div>
-          <div className=" flex flex-col items-start gap-2 font-semibold">
+          <div className="flex flex-col items-start gap-2 font-semibold">
             <img
-              className="h-16 hidden sm:block"
-              src={scanPaymentQrIcon}
+              className="h-12 mb-2 hidden sm:block"
+              src={rupeeScanner}
               alt=""
             />
-            <label className="w-full hidden sm:block">
+            <label className="max-w-[167px] hidden sm:block">
               Scan with any UPI app to pay
             </label>
             <label className="w-full sm:hidden">
@@ -192,6 +245,12 @@ const Pay = () => {
         >
           Share QR Code
         </button>
+        <div className="flex flex-row items-center gap-2">
+          <div className="-ml-[22px] w-4 aspect-square bg-white rounded-full" />
+          <hr className="border border-(--clr-border-grey-one) border-dashed w-full" />
+          <div className="-mr-[22px] w-4 aspect-square bg-white rounded-full" />
+        </div>
+
         <form
           onSubmit={handleSendUTR}
           className="flex flex-col items-center gap-2"
@@ -234,7 +293,10 @@ const Pay = () => {
             required
             onChange={(e) => updateCustomerPaymentInfo("utr", e.target.value)}
           />
-          <button type="submit" className="styled-button w-full mt-2">
+          <button
+            type="submit"
+            className="styled-button max-md:fixed bottom-4 left-4 max-md:w-[calc(100vw-32px)] w-full mt-2"
+          >
             Confirm Payment
           </button>
         </form>
@@ -244,7 +306,9 @@ const Pay = () => {
 
   return (
     <div>
-      <h1>Invalid or Tampered Link</h1>
+      <h1 className="font-semibold text-(--clr-grey-three) w-full text-center">
+        Invalid or Tampered Link
+      </h1>
     </div>
   );
 };

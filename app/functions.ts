@@ -9,3 +9,10 @@ export const createSignature = async (dataString: string): Promise<string> => {
 
   return fullHexSignature.substring(0, 8);
 };
+
+export const readableAmount = (rawAmount: string): string => {
+  if (!rawAmount || isNaN(Number(rawAmount))) return rawAmount;
+
+  // 'en-IN' automatically formats with the Indian numbering system (1,00,000)
+  return new Intl.NumberFormat("en-IN").format(Number(rawAmount));
+};

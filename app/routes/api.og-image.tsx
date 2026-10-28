@@ -4,6 +4,7 @@ import QRCode from "qrcode";
 import type { Route } from "./+types/api.og.image";
 import poppins400 from "../assets/fonts/poppins-400.woff?inline";
 import poppins700 from "../assets/fonts/poppins-700.woff?inline";
+import { readableAmount } from "~/functions";
 
 const dataUrlToBuffer = (dataUrl: string) =>
   Buffer.from(dataUrl.split(",")[1], "base64");
@@ -31,99 +32,51 @@ export async function loader({ request }: Route.LoaderArgs): Promise<Response> {
   try {
     const url = new URL(request.url);
     const am = url.searchParams.get("am") || "0";
-    const pn = url.searchParams.get("pn");
-    const pa = url.searchParams.get("pa") || "";
-    const tn = url.searchParams.get("tn");
-
-    const pnParam =
-      typeof pn === "string" && pn ? `&pn=${encodeURIComponent(pn)}` : "";
-    const tnParam =
-      typeof tn === "string" && tn ? `&tn=${encodeURIComponent(tn)}` : "";
-    const UPIPaymentURL = `upi://pay?pa=${pa}${pnParam}&am=${am}&cu=INR${tnParam}`;
-
-    const qrData = QRCode.create(UPIPaymentURL, { errorCorrectionLevel: "H" });
-    const moduleCount = qrData.modules.size;
-    const qrSize = 800;
-    const cellSize = qrSize / moduleCount;
-
-    let path = "";
-    for (let r = 0; r < moduleCount; r++) {
-      for (let c = 0; c < moduleCount; c++) {
-        if (qrData.modules.get(r, c)) {
-          path += `M${c * cellSize},${r * cellSize}h${cellSize}v${cellSize}h-${cellSize}z `;
-        }
-      }
-    }
-
-    const displaySize = 300;
 
     const svg = await satori(
       <div
         style={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
+          position: "relative",
           fontFamily: "Poppins",
-          background: "white",
+          background:
+            "linear-gradient(to bottom right, #33333366, #3333331a, #33333380)",
           width: "100%",
           height: "100%",
-          padding: "64px 80px",
+          padding: "16px",
           boxSizing: "border-box",
         }}
       >
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-          <div
-            style={{
-              fontSize: 40,
-              fontWeight: 700,
-              wordBreak: "break-all",
-              color: "#111827",
-              lineClamp: 2,
-            }}
-          >
-            {`Paying Rs. ${am} ${pn ? `to ${pn}` : `to ${pa}`} ${tn ? `for "${tn}"` : ""}`}
-          </div>
-        </div>
-
         <div
           style={{
+            position: "fixed",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
             display: "flex",
-            flexDirection: "row",
+            flexDirection: "column",
+            justifyContent: "center",
             alignItems: "center",
-            gap: "16px",
-            border: "2px solid #E5E7EB",
-            background: "#F9FAFB",
-            borderRadius: "16px",
-            padding: "16px",
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              backgroundColor: "white",
-              padding: "16px",
-              borderRadius: "12px",
-            }}
-          >
-            <svg
-              viewBox={`0 0 ${qrSize} ${qrSize}`}
-              style={{
-                display: "flex",
-                width: displaySize,
-                height: displaySize,
-              }}
-            >
-              <path d={path} fill="black" />
-            </svg>
+          <div style={{ fontSize: 50, fontWeight: 500, color: "#333333" }}>
+            Requested
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            <div style={{ fontSize: 32, fontWeight: 700, color: "#1F2937" }}>
-              Scan with any UPI app to pay
-            </div>
-            <div style={{ fontSize: 22, fontWeight: 400, color: "#6B7280" }}>
-              Secure Payment Link
-            </div>
+          <div style={{ fontSize: 100, fontWeight: 500 }}>
+            Rs. {readableAmount(am)}
           </div>
+        </div>
+        <div
+          style={{
+            position: "fixed",
+            bottom: 16,
+            right: 16,
+            marginLeft: "auto",
+            fontWeight: 600,
+            color: "#333333",
+            fontSize: 14,
+          }}
+        >
+          MIV-PAY
         </div>
       </div>,
       {
@@ -141,7 +94,6 @@ export async function loader({ request }: Route.LoaderArgs): Promise<Response> {
     return new Response(new Uint8Array(png), {
       headers: {
         "Content-Type": "image/png",
-        // "Cache-Control": "public, max-age=31536000, immutable",
         "Cache-Control": "no-store, no-cache, must-revalidate",
       },
     });

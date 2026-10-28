@@ -50,3 +50,14 @@ body {
   border-radius: var(--corner-radius);
   cursor: pointer;
 }
+
+.label-text {
+  width: 100%;
+  font-weight: 500;
+  color: var(--clr-grey-one);
+}
+
+input,
+button {
+  background-color: white;
+}

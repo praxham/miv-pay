@@ -109,10 +109,16 @@ const CreatePaymentLink = () => {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+      <div className="@container w-full aspect-video flex flex-col items-center justify-center font-semibold text-[8cqw] lg:text-[4cqw] rounded-4xl mb-4 bg-linear-to-br from-(--clr-grey-one)/40 via-(--clr-grey-one)/10 to-(--clr-grey-one)/50 border border-slate-100 text-(--clr-grey-one) hover:scale-110 hover:-skew-x-5 duration-500">
+        MIV-PAY
+        <div className="flex flex-row gap-6 text-[0.75rem] md:text-[0.87rem]">
+          <li>Integratable</li>
+          <li>Secure</li>
+          <li>Serverless</li>
+        </div>
+      </div>
       <h1 className="font-semibold text-2xl">Create UPI Based Payment Link</h1>
-      <label className="w-full font-semibold mt-2 text-(--clr-grey-one)">
-        Receiver's UPI ID
-      </label>
+      <label className="label-text">Receiver's UPI ID</label>
       <input
         className="w-full px-4 py-2 rounded-(--corner-radius) border-(--clr-border-grey-two) border"
         id="receiver-upiId"
@@ -125,9 +131,7 @@ const CreatePaymentLink = () => {
         required
         onChange={(e) => updatePaymentLinkConfig("pa", e.target.value)}
       />
-      <label className="w-full font-semibold text-(--clr-grey-one)">
-        Receiver's Name (optional)
-      </label>
+      <label className="label-text">Receiver's Name (optional)</label>
       <input
         className="w-full px-4 py-2 rounded-(--corner-radius) border-(--clr-border-grey-two) border"
         id="receiver-name"
@@ -137,9 +141,7 @@ const CreatePaymentLink = () => {
         value={paymentLinkConfig.pn}
         onChange={(e) => updatePaymentLinkConfig("pn", e.target.value)}
       />
-      <label className="w-full font-semibold text-(--clr-grey-one)">
-        Amount
-      </label>
+      <label className="label-text">Amount</label>
       <input
         className="w-full px-4 py-2 rounded-(--corner-radius) border-(--clr-border-grey-two) border"
         id="amount"
@@ -161,9 +163,7 @@ const CreatePaymentLink = () => {
           }
         }}
       />
-      <label className="w-full font-semibold text-(--clr-grey-one)">
-        Transaction Note
-      </label>
+      <label className="label-text">Transaction Note</label>
       <input
         className="w-full px-4 py-2 rounded-(--corner-radius) border-(--clr-border-grey-two) border"
         id="transaction-note"
@@ -174,7 +174,7 @@ const CreatePaymentLink = () => {
         value={paymentLinkConfig.tn}
         onChange={(e) => updatePaymentLinkConfig("tn", e.target.value)}
       />
-      <label className="w-full font-semibold text-(--clr-grey-one) mt-2">
+      <label className="label-text mt-2">
         Where should customers send the UTR?
       </label>
       <div className="flex gap-2 w-full">
@@ -187,8 +187,6 @@ const CreatePaymentLink = () => {
           <option value="email">Email</option>
           <option value="whatsapp">WhatsApp</option>
         </select>
-
-        {/* Input field that changes validation based on the dropdown */}
         <input
           className="w-full px-4 py-2 rounded-(--corner-radius) border-(--clr-border-grey-two) border"
           id="contact-info"
@@ -214,9 +212,7 @@ const CreatePaymentLink = () => {
           }
         />
       </div>
-      <label className="w-full font-semibold text-(--clr-grey-one)">
-        Customer UPI ID (optional)
-      </label>
+      <label className="label-text mt-1">Customer UPI ID (optional)</label>
       <input
         className="w-full px-4 py-2 rounded-(--corner-radius) border-(--clr-border-grey-two) border"
         id="customer-upiId"
@@ -228,15 +224,17 @@ const CreatePaymentLink = () => {
         value={paymentLinkConfig.ra}
         onChange={(e) => updatePaymentLinkConfig("ra", e.target.value)}
       />
-      <button type="submit" className="styled-button mt-4">
-        Create & Share Payment Link
-      </button>
-      <a
-        href="https://github.com/praxham/miv-pay/blob/main/README.md"
-        className="text-[0.87rem] text-center"
-      >
-        API Docs
-      </a>
+      <div className="max-md:fixed bottom-4 left-4 max-md:w-[calc(100vw-32px)] bg-white flex flex-col gap-2">
+        <button type="submit" className="styled-button mt-4">
+          Create & Share Payment Link
+        </button>
+        <a
+          href="https://github.com/praxham/miv-pay/blob/main/README.md"
+          className="text-[0.87rem] text-center"
+        >
+          API Docs
+        </a>
+      </div>
     </form>
   );
 };
