@@ -1,6 +1,5 @@
 import satori from "satori";
 import { Resvg } from "@resvg/resvg-js";
-import QRCode from "qrcode";
 import type { Route } from "./+types/api.og.image";
 import poppins400 from "../assets/fonts/poppins-400.woff?inline";
 import poppins700 from "../assets/fonts/poppins-700.woff?inline";
@@ -11,22 +10,6 @@ const dataUrlToBuffer = (dataUrl: string) =>
 
 const regular = dataUrlToBuffer(poppins400);
 const bold = dataUrlToBuffer(poppins700);
-
-function generateQrSvgPath(text: string, size: number) {
-  const qr = QRCode.create(text, { errorCorrectionLevel: "H" });
-  const moduleCount = qr.modules.size;
-  const cellSize = size / moduleCount;
-
-  let path = "";
-  for (let r = 0; r < moduleCount; r++) {
-    for (let c = 0; c < moduleCount; c++) {
-      if (qr.modules.get(r, c)) {
-        path += `M${c * cellSize},${r * cellSize}h${cellSize}v${cellSize}h-${cellSize}z `;
-      }
-    }
-  }
-  return { path, moduleCount, cellSize };
-}
 
 export async function loader({ request }: Route.LoaderArgs): Promise<Response> {
   try {

@@ -18,14 +18,20 @@ export async function action({ request }: Route.ActionArgs): Promise<Response> {
       );
     }
 
-    const { pn, pa, am, tn, ct, ci, ra } = result.data;
-    const dataToProtect = `${pa}|${am}|${pn || ""}|${tn || ""}|${ct}|${ci}|${ra || ""}`;
+    const { pn, pa, am, tn, ct, ci, ra, vurl } = result.data;
+    let validCt;
+    if (ct === "whatsapp" && ci?.length === 0) {
+      validCt = "";
+    } else {
+      validCt = ct;
+    }
+    const dataToProtect = `${pa}|${am}|${pn || ""}|${tn || ""}|${validCt || ""}|${ci || ""}|${ra || ""}|${vurl || ""}`;
     const signature = await createSignature(dataToProtect);
 
     const url = new URL(request.url);
     const baseUrl = `${url.protocol}//${url.host}`;
 
-    const link = `${baseUrl}/pay/?${pn ? `pn=${encodeURIComponent(pn)}` : ""}&pa=${pa}&am=${am}${tn ? `&tn=${encodeURIComponent(tn)}` : ""}&ct=${ct}&ci=${ci}${ra ? `&ra=${ra}` : ""}&sig=${signature}`;
+    const link = `${baseUrl}/pay/?${pn ? `pn=${encodeURIComponent(pn)}` : ""}&pa=${pa}&am=${am}${tn ? `&tn=${encodeURIComponent(tn)}` : ""}${validCt ? `&ct=${validCt}` : ""}${ci ? `&ci=${ci}` : ""}${ra ? `&ra=${ra}` : ""}${vurl ? `&vurl=${vurl}` : ""}&sig=${signature}`;
 
     return Response.json({
       success: true,

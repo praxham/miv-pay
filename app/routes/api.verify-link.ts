@@ -3,10 +3,6 @@ import type { Route } from "./+types/api.verify-link";
 import { verifyLinkSchema } from "~/validation-schema";
 import { createSignature } from "~/functions";
 
-// If you have `verifyLinkSchema` and `createSignature` defined elsewhere, import them:
-// import { verifyLinkSchema } from "~/utils/schemas";
-// import { createSignature } from "~/utils/crypto";
-
 function safeEqual(a: string, b: string): boolean {
   if (a.length !== b.length) {
     return false;
@@ -30,7 +26,7 @@ export async function action({ request }: Route.ActionArgs): Promise<Response> {
       );
     }
 
-    const { pn, pa, am, tn, ct, ci, ra, sig } = result.data;
+    const { pn, pa, am, tn, ct, ci, ra, vurl, sig } = result.data;
 
     if (!sig) {
       return Response.json(
@@ -42,7 +38,13 @@ export async function action({ request }: Route.ActionArgs): Promise<Response> {
       );
     }
 
-    const dataToVerify = `${pa}|${am}|${pn || ""}|${tn || ""}|${ct}|${ci}|${ra || ""}`;
+    let validCt;
+    if (ct === "whatsapp" && ci?.length === 0) {
+      validCt = "";
+    } else {
+      validCt = ct;
+    }
+    const dataToVerify = `${pa}|${am}|${pn || ""}|${tn || ""}|${validCt || ""}|${ci || ""}|${ra || ""}|${vurl || ""}`;
     const calculatedSignature = await createSignature(dataToVerify);
 
     const isValid = safeEqual(String(calculatedSignature), String(sig));

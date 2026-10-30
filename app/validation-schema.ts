@@ -12,14 +12,22 @@ export const generateLinkSchema = z
     am: z.union([z.string(), z.number()]),
     pn: z.string().optional(),
     tn: z.string().optional(),
-    ct: z.enum(["email", "whatsapp"]),
-    ci: z.string().min(1, "Contact info is required"),
+    ct: z.enum(["email", "whatsapp"]).optional(),
+    ci: z.string().min(1, "Contact info is required").optional(),
     ra: upiId().optional(),
+    vurl: z.url().optional(),
   })
   .superRefine((data, ctx) => {
     if (data.ct === "whatsapp") {
       // Validate that `ci` is a valid phone number format for WhatsApp
-      if (!PHONE_REGEX.test(data.ci)) {
+      if (!data.ci) {
+        ctx.addIssue({
+          code: "custom",
+          message: "Please provide phone number for WhatsApp",
+          path: ["ci"],
+        });
+      }
+      if (data.ci && !PHONE_REGEX.test(data.ci)) {
         ctx.addIssue({
           code: "custom",
           message: "Invalid phone number for WhatsApp",
@@ -36,8 +44,22 @@ export const generateLinkSchema = z
         });
       }
     }
+    if (data.ci && !data.ct) {
+      ctx.addIssue({
+        code: "custom",
+        message: `Please provide contact type, eg: "whatsapp" or "email"`,
+        path: ["ct"],
+      });
+    }
+    if (data.vurl && !data.ci) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Please provide contact information to send the VURL.",
+        path: ["ci"],
+      });
+    }
   });
 
 export const verifyLinkSchema = generateLinkSchema.extend({
-  sig: z.string().min(1, "Signature is required"),
+  sig: z.string().min(8, "Signature is required"),
 });
