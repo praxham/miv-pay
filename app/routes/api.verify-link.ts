@@ -2,6 +2,8 @@ import crypto from "node:crypto";
 import type { Route } from "./+types/api.verify-link";
 import { verifyLinkSchema } from "~/validation-schema";
 import { createSignature } from "~/functions";
+import type { LoaderFunctionArgs } from "react-router";
+import { corsHeaders } from "~/constants";
 
 function safeEqual(a: string, b: string): boolean {
   if (a.length !== b.length) {
@@ -9,6 +11,18 @@ function safeEqual(a: string, b: string): boolean {
   }
   return crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
 }
+
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  // for browser preflight check
+  if (request.method === "OPTIONS") {
+    return new Response(null, {
+      status: 200,
+      headers: corsHeaders,
+    });
+  }
+
+  return new Response("Method Not Allowed", { status: 405 });
+};
 
 export async function action({ request }: Route.ActionArgs): Promise<Response> {
   try {

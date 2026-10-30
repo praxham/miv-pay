@@ -1,6 +1,22 @@
 import { generateLinkSchema } from "~/validation-schema";
 import type { Route } from "./+types/api.generate-link";
 import { createSignature } from "~/functions";
+import type { LoaderFunctionArgs } from "react-router";
+import { corsHeaders } from "~/constants";
+
+
+
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  // for browser preflight check
+  if (request.method === "OPTIONS") {
+    return new Response(null, {
+      status: 200,
+      headers: corsHeaders,
+    });
+  }
+
+  return new Response("Method Not Allowed", { status: 405 });
+};
 
 export async function action({ request }: Route.ActionArgs): Promise<Response> {
   try {
