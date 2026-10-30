@@ -138,6 +138,8 @@ const Pay = () => {
   const handleSendUTR = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    const vurlWithUTR = vurl + "?utr=" + customerPaymentInfo.utr;
+
     // sends utr back to the tab which opened this page
     if (window.opener) {
       window.opener.postMessage(
@@ -155,7 +157,7 @@ const Pay = () => {
 ${
   vurl
     ? `Verify payment here:
-${vurl}`
+${vurlWithUTR}`
     : ""
 }`;
 
@@ -174,7 +176,7 @@ ${vurl}`
 ${
   vurl
     ? `*Verify Payment Here:*
-${vurl}`
+${vurlWithUTR}`
     : ""
 }`;
       const whatsappURL = `https://wa.me/${ci}?text=${encodeURIComponent(wtspMessage)}`;
