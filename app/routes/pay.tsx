@@ -78,7 +78,7 @@ const Pay = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ pn, pa, am, tn, ct, ci, ra, sig }),
+        body: JSON.stringify({ pn, pa, am, tn, ct, ci, ra, vurl, sig }),
       });
       const data = await response.json();
       const isValid = data?.data?.isValid;
