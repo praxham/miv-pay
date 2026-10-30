@@ -137,6 +137,18 @@ const Pay = () => {
 
   const handleSendUTR = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    // sends utr back to the tab which opened this page
+    if (window.opener) {
+      window.opener.postMessage(
+        {
+          status: "SUCCESS",
+          utr: customerPaymentInfo.utr,
+        },
+        "*",
+      );
+    }
+
     if (ct === "email") {
       const emailBody = `Please Verify Payment from ${pa?.toUpperCase()} ${tn ? `for Note: ${tn}` : ""} of amount ₹${readableAmountValue} with UTR: ${customerPaymentInfo.utr.toUpperCase()}
 
@@ -168,6 +180,7 @@ ${vurl}`
       const whatsappURL = `https://wa.me/${ci}?text=${encodeURIComponent(wtspMessage)}`;
       window.open(whatsappURL, "_blank");
     }
+    window.close();
   };
 
   if (isLinkValid === true) {
