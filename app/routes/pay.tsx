@@ -263,61 +263,65 @@ ${vurl}`
         >
           Share QR Code
         </button>
-        <div className="flex flex-row items-center gap-2">
-          <div className="-ml-5.5 w-4 aspect-square bg-white rounded-full" />
-          <hr className="border border-(--clr-border-grey-one) border-dashed w-full" />
-          <div className="-mr-5.5 w-4 aspect-square bg-white rounded-full" />
-        </div>
+        {ci && (
+          <div className="flex flex-row items-center gap-2">
+            <div className="-ml-5.5 w-4 aspect-square bg-white rounded-full" />
+            <hr className="border border-(--clr-border-grey-one) border-dashed w-full" />
+            <div className="-mr-5.5 w-4 aspect-square bg-white rounded-full" />
+          </div>
+        )}
 
-        <form
-          onSubmit={handleSendUTR}
-          className="flex flex-col items-center gap-2"
-        >
-          {!ra && (
-            <div className="contents">
-              <label className="w-full font-semibold text-(--clr-grey-one)">
-                Your UPI ID
-              </label>
-              <input
-                className="w-full px-4 py-2 rounded-(--corner-radius) border-(--clr-border-grey-two) border"
-                id="customer-upiId"
-                name="customer-upiId"
-                placeholder="e.g., username@bank"
-                type="text"
-                value={customerPaymentInfo.upiId}
-                pattern={UPI_REGEX.source}
-                title="Please enter a valid UPI ID (e.g., username@bank)"
-                required
-                onChange={(e) =>
-                  updateCustomerPaymentInfo("upiId", e.target.value)
-                }
-              />
-            </div>
-          )}
-          <label className="w-full font-semibold text-(--clr-grey-one)">
-            UTR
-          </label>
-          <input
-            className="w-full px-4 py-2 rounded-(--corner-radius) border-(--clr-border-grey-two) border"
-            id="utr"
-            name="utr"
-            placeholder="Enter the 12-digit UTR from your receipt"
-            type="text"
-            value={customerPaymentInfo.utr}
-            minLength={12}
-            maxLength={12}
-            pattern="[0-9]{12}"
-            title="UTR must be exactly 12 numeric digits"
-            required
-            onChange={(e) => updateCustomerPaymentInfo("utr", e.target.value)}
-          />
-          <button
-            type="submit"
-            className="styled-button max-md:fixed bottom-4 left-4 max-md:w-[calc(100vw-32px)] w-full mt-2"
+        {ci && (
+          <form
+            onSubmit={handleSendUTR}
+            className="flex flex-col items-center gap-2"
           >
-            Confirm Payment
-          </button>
-        </form>
+            {!ra && (
+              <div className="contents">
+                <label className="w-full font-semibold text-(--clr-grey-one)">
+                  Your UPI ID
+                </label>
+                <input
+                  className="w-full px-4 py-2 rounded-(--corner-radius) border-(--clr-border-grey-two) border"
+                  id="customer-upiId"
+                  name="customer-upiId"
+                  placeholder="e.g., username@bank"
+                  type="text"
+                  value={customerPaymentInfo.upiId}
+                  pattern={UPI_REGEX.source}
+                  title="Please enter a valid UPI ID (e.g., username@bank)"
+                  required
+                  onChange={(e) =>
+                    updateCustomerPaymentInfo("upiId", e.target.value)
+                  }
+                />
+              </div>
+            )}
+            <label className="w-full font-semibold text-(--clr-grey-one)">
+              UTR
+            </label>
+            <input
+              className="w-full px-4 py-2 rounded-(--corner-radius) border-(--clr-border-grey-two) border"
+              id="utr"
+              name="utr"
+              placeholder="Enter the 12-digit UTR from your receipt"
+              type="text"
+              value={customerPaymentInfo.utr}
+              minLength={12}
+              maxLength={12}
+              pattern="[0-9]{12}"
+              title="UTR must be exactly 12 numeric digits"
+              required
+              onChange={(e) => updateCustomerPaymentInfo("utr", e.target.value)}
+            />
+            <button
+              type="submit"
+              className="styled-button max-md:fixed bottom-4 left-4 max-md:w-[calc(100vw-32px)] w-full mt-2"
+            >
+              Confirm Payment
+            </button>
+          </form>
+        )}
       </div>
     );
   }

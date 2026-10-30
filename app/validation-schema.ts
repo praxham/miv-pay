@@ -13,7 +13,7 @@ export const generateLinkSchema = z
     pn: z.string().optional(),
     tn: z.string().optional(),
     ct: z.enum(["email", "whatsapp"]).optional(),
-    ci: z.string().min(1, "Contact info is required").optional(),
+    ci: z.string().optional(),
     ra: upiId().optional(),
     vurl: z.url().optional(),
   })

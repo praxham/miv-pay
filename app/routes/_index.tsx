@@ -86,6 +86,13 @@ const CreatePaymentLink = () => {
     try {
       const { pa, pn, am, tn, ct, ci, ra } = paymentLinkConfig;
 
+      let validCt;
+      if (ct === "whatsapp" && ci?.length === 0) {
+        validCt = "";
+      } else {
+        validCt = ct;
+      }
+
       const cleanValue = (val: unknown) =>
         typeof val === "string" && val.trim() === "" ? undefined : val;
 
@@ -99,7 +106,7 @@ const CreatePaymentLink = () => {
           pa: cleanValue(pa),
           am: cleanValue(am),
           tn: cleanValue(tn),
-          ct: cleanValue(ct),
+          ct: cleanValue(validCt),
           ci: cleanValue(ci),
           ra: cleanValue(ra),
         }),
