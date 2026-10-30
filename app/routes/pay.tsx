@@ -4,7 +4,6 @@ import gpayIcon from "../assets/gpay.png";
 import paytmIcon from "../assets/paytm.png";
 import phonepayIcon from "../assets/phonepay.png";
 import upiIcon from "../assets/upi.png";
-import scanPaymentQrIcon from "../assets/scan-payment-qr.svg";
 import rupeeScanner from "../assets/rupee-scanner.svg";
 import { UPI_REGEX } from "~/validation-schema";
 import { useSearchParams } from "react-router";
@@ -55,9 +54,10 @@ const paymentAppIcons = [gpayIcon, paytmIcon, phonepayIcon, upiIcon];
 
 const Pay = () => {
   const [searchParams] = useSearchParams();
-  const { pn, pa, am, tn, ct, ci, ra, sig } = Object.fromEntries(
+  const { pn, pa, am, tn, ct, ci, ra, vurl, sig } = Object.fromEntries(
     searchParams.entries(),
   );
+  const readableAmountValue = readableAmount(am);
   const [isLinkValid, setIsLinkValid] = useState<boolean | null>(null);
   const [customerPaymentInfo, setCustomerPaymentInfo] = useState({
     upiId: ra ? ra : "",
@@ -138,15 +138,33 @@ const Pay = () => {
   const handleSendUTR = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (ct === "email") {
-      const emailBody = `Please Verify Payment from ${pa?.toUpperCase()} ${tn ? `for Note: ${tn}` : ""} of amount ₹${am} with UTR: ${customerPaymentInfo.utr.toUpperCase()}`;
+      const emailBody = `Please Verify Payment from ${pa?.toUpperCase()} ${tn ? `for Note: ${tn}` : ""} of amount ₹${readableAmountValue} with UTR: ${customerPaymentInfo.utr.toUpperCase()}
 
-      const emailURL = `mailto:${ci}&subject=Verify payment from ${customerPaymentInfo.upiId.toUpperCase()} of ₹${am}&body=${encodeURIComponent(emailBody)}`;
+${
+  vurl
+    ? `Verify payment here:
+${vurl}`
+    : ""
+}`;
+
+      const emailSubject = encodeURIComponent(
+        `Verify payment from ${customerPaymentInfo.upiId.toUpperCase()} of ₹${readableAmountValue}`,
+      );
+      const emailURL = `mailto:${ci}?subject=${emailSubject}&body=${encodeURIComponent(emailBody)}`;
+      console.log(emailURL);
+
       window.open(emailURL, "_blank");
     } else if (ct === "whatsapp") {
       const wtspMessage = `Please Verify Payment from *${customerPaymentInfo.upiId.toUpperCase()}* ${tn ? `for Note: ${tn}` : ""}
 
-*Amount:* ₹${am}
-*UTR:* ${customerPaymentInfo.utr.toUpperCase()}`;
+*Amount:* ₹${readableAmountValue}
+*UTR:* ${customerPaymentInfo.utr.toUpperCase()}
+${
+  vurl
+    ? `*Verify Payment Here:*
+${vurl}`
+    : ""
+}`;
       const whatsappURL = `https://wa.me/${ci}?text=${encodeURIComponent(wtspMessage)}`;
       window.open(whatsappURL, "_blank");
     }
@@ -154,7 +172,7 @@ const Pay = () => {
 
   if (isLinkValid === true) {
     return (
-      <div className="flex flex-col gap-4 bg-[#F7F8FB] p-4 rounded-(--corner-radius)">
+      <div className="flex flex-col gap-4 bg-[#F7F8FB] p-4 rounded-(--corner-radius) mb-18 md:mb-0">
         <div className="flex flex-row gap-4 justify-between items-center">
           <div className="px-4 py-2 bg-black text-white w-fit rounded-(--corner-radius) font-extrabold">
             MIV-PAY
@@ -226,7 +244,7 @@ const Pay = () => {
               src={rupeeScanner}
               alt=""
             />
-            <label className="max-w-[167px] hidden sm:block">
+            <label className="max-w-41.75 hidden sm:block">
               Scan with any UPI app to pay
             </label>
             <label className="w-full sm:hidden">
@@ -245,61 +263,65 @@ const Pay = () => {
         >
           Share QR Code
         </button>
-        <div className="flex flex-row items-center gap-2">
-          <div className="-ml-[22px] w-4 aspect-square bg-white rounded-full" />
-          <hr className="border border-(--clr-border-grey-one) border-dashed w-full" />
-          <div className="-mr-[22px] w-4 aspect-square bg-white rounded-full" />
-        </div>
+        {ci && (
+          <div className="flex flex-row items-center gap-2">
+            <div className="-ml-5.5 w-4 aspect-square bg-white rounded-full" />
+            <hr className="border border-(--clr-border-grey-one) border-dashed w-full" />
+            <div className="-mr-5.5 w-4 aspect-square bg-white rounded-full" />
+          </div>
+        )}
 
-        <form
-          onSubmit={handleSendUTR}
-          className="flex flex-col items-center gap-2"
-        >
-          {!ra && (
-            <div className="contents">
-              <label className="w-full font-semibold text-(--clr-grey-one)">
-                Your UPI ID
-              </label>
-              <input
-                className="w-full px-4 py-2 rounded-(--corner-radius) border-(--clr-border-grey-two) border"
-                id="customer-upiId"
-                name="customer-upiId"
-                placeholder="e.g., username@bank"
-                type="text"
-                value={customerPaymentInfo.upiId}
-                pattern={UPI_REGEX.source}
-                title="Please enter a valid UPI ID (e.g., username@bank)"
-                required
-                onChange={(e) =>
-                  updateCustomerPaymentInfo("upiId", e.target.value)
-                }
-              />
-            </div>
-          )}
-          <label className="w-full font-semibold text-(--clr-grey-one)">
-            UTR
-          </label>
-          <input
-            className="w-full px-4 py-2 rounded-(--corner-radius) border-(--clr-border-grey-two) border"
-            id="utr"
-            name="utr"
-            placeholder="Enter the 12-digit UTR from your receipt"
-            type="text"
-            value={customerPaymentInfo.utr}
-            minLength={12}
-            maxLength={12}
-            pattern="[0-9]{12}"
-            title="UTR must be exactly 12 numeric digits"
-            required
-            onChange={(e) => updateCustomerPaymentInfo("utr", e.target.value)}
-          />
-          <button
-            type="submit"
-            className="styled-button max-md:fixed bottom-4 left-4 max-md:w-[calc(100vw-32px)] w-full mt-2"
+        {ci && (
+          <form
+            onSubmit={handleSendUTR}
+            className="flex flex-col items-center gap-2"
           >
-            Confirm Payment
-          </button>
-        </form>
+            {!ra && (
+              <div className="contents">
+                <label className="w-full font-semibold text-(--clr-grey-one)">
+                  Your UPI ID
+                </label>
+                <input
+                  className="w-full px-4 py-2 rounded-(--corner-radius) border-(--clr-border-grey-two) border"
+                  id="customer-upiId"
+                  name="customer-upiId"
+                  placeholder="e.g., username@bank"
+                  type="text"
+                  value={customerPaymentInfo.upiId}
+                  pattern={UPI_REGEX.source}
+                  title="Please enter a valid UPI ID (e.g., username@bank)"
+                  required
+                  onChange={(e) =>
+                    updateCustomerPaymentInfo("upiId", e.target.value)
+                  }
+                />
+              </div>
+            )}
+            <label className="w-full font-semibold text-(--clr-grey-one)">
+              UTR
+            </label>
+            <input
+              className="w-full px-4 py-2 rounded-(--corner-radius) border-(--clr-border-grey-two) border"
+              id="utr"
+              name="utr"
+              placeholder="Enter the 12-digit UTR from your receipt"
+              type="text"
+              value={customerPaymentInfo.utr}
+              minLength={12}
+              maxLength={12}
+              pattern="[0-9]{12}"
+              title="UTR must be exactly 12 numeric digits"
+              required
+              onChange={(e) => updateCustomerPaymentInfo("utr", e.target.value)}
+            />
+            <button
+              type="submit"
+              className="styled-button max-md:fixed bottom-4 left-4 max-md:w-[calc(100vw-32px)] w-full mt-2"
+            >
+              Confirm Payment
+            </button>
+          </form>
+        )}
       </div>
     );
   }

@@ -16,13 +16,13 @@ const CreatePaymentLink = () => {
   const [paymentLinkConfig, setPaymentLinkConfig] = useState({
     pa: user.pa ? user.pa : "",
     am: "",
+    // optional fields
     ct: user.ct !== "whatsapp" ? user.ct : "whatsapp",
     ci: user.ci_email
       ? user.ci_email
       : user.ci_whatsapp
         ? user.ci_whatsapp
         : "",
-    // optional fields
     pn: user.pn ? user.pn : "",
     tn: "",
     ra: "",
@@ -47,7 +47,14 @@ const CreatePaymentLink = () => {
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const { pa, pn, am } = paymentLinkConfig;
+    const { pa, pn, am, ct, ci } = paymentLinkConfig;
+
+    if (ct === "email" && ci.length === 0) {
+      toast.error(
+        `You've updated contact type to "Email" but you didnt provided any email address`,
+      );
+      return;
+    }
 
     const link = await updatePaymentLink();
 
@@ -79,6 +86,13 @@ const CreatePaymentLink = () => {
     try {
       const { pa, pn, am, tn, ct, ci, ra } = paymentLinkConfig;
 
+      let validCt;
+      if (ct === "whatsapp" && ci?.length === 0) {
+        validCt = "";
+      } else {
+        validCt = ct;
+      }
+
       const cleanValue = (val: unknown) =>
         typeof val === "string" && val.trim() === "" ? undefined : val;
 
@@ -92,7 +106,7 @@ const CreatePaymentLink = () => {
           pa: cleanValue(pa),
           am: cleanValue(am),
           tn: cleanValue(tn),
-          ct: cleanValue(ct),
+          ct: cleanValue(validCt),
           ci: cleanValue(ci),
           ra: cleanValue(ra),
         }),
@@ -108,14 +122,14 @@ const CreatePaymentLink = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-2 mb-29 md:mb-0">
       <div className="@container w-full aspect-video flex flex-col items-center justify-center font-semibold text-[8cqw] lg:text-[4cqw] rounded-4xl mb-4 bg-linear-to-br from-(--clr-grey-one)/40 via-(--clr-grey-one)/10 to-(--clr-grey-one)/50 border border-slate-100 text-(--clr-grey-one) hover:scale-110 hover:-skew-x-5 duration-500">
         MIV-PAY
-        <div className="flex flex-row gap-6 text-[0.75rem] md:text-[0.87rem]">
-          <li>Integratable</li>
-          <li>Secure</li>
-          <li>Serverless</li>
-        </div>
+        <ul className="flex flex-row gap-6 text-[0.75rem] md:text-[0.87rem]">
+          <li className="list-disc">Integratable</li>
+          <li className="list-disc">Secure</li>
+          <li className="list-disc">Serverless</li>
+        </ul>
       </div>
       <h1 className="font-semibold text-2xl">Create UPI Based Payment Link</h1>
       <label className="label-text">Receiver's UPI ID</label>
@@ -199,7 +213,6 @@ const CreatePaymentLink = () => {
           }
           value={paymentLinkConfig.ci}
           onChange={(e) => updatePaymentLinkConfig("ci", e.target.value)}
-          required
           pattern={
             paymentLinkConfig.ct === "whatsapp"
               ? "^\\+?[1-9]\\d{1,14}$"
